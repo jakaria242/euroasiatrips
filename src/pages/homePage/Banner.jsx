@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-fade";
+import axios from "axios";
 
 import pic1 from "../../assets/images/luxor-2-min.jpg";
 import pic2 from "../../assets/images/luxor-3-min.jpg";
@@ -13,6 +14,28 @@ const banners = [
 ];
 
 const BannerSection = () => {
+
+    const [countries, setCountries] = useState([]);
+
+    useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await axios.get("https://bdtravel.net/api/get-homepage-data");
+        const countryData = res.data?.getCountryData || [];
+        setCountries(countryData);
+        console.log(countryData);
+        
+      } catch (error) {
+        console.error("Failed to fetch countries:", error);
+      }
+    };
+
+    fetchCountries();
+  }, []);
+  
+  //  console.log(countries);
+
+
   return (
     <div className="relative w-full  overflow-hidden">
       <Swiper
@@ -48,10 +71,11 @@ const BannerSection = () => {
                 <div className="bg-gradient-to-r from-[#2D51A3] to-[#00AEEF] px-[50px] py-[30px] rounded-[15px] border-[5px] border-dashed border-white max-w-[900px] w-full appearance-none">
                   <select className="w-full px-4 py-3 rounded text-black text-[18px] focus:bg-transparent appearance-none focus:outline-none border border-[#d4d6d9]">
                     <option className=" font-dmSans text-[rgb(13, 24, 33)]">Please select a country</option>
-                    <option>ALL</option>
-                    <option>USA</option>
-                    <option>Canada</option>
-                    <option>UK</option>
+                    {countries.map((country, index) => (
+                      <option key={index} value={country.name}>
+                        {country.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -64,3 +88,6 @@ const BannerSection = () => {
 };
 
 export default BannerSection;
+
+
+

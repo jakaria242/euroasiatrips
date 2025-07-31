@@ -1,9 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MapPin, Clock, Calendar } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const TourPakage = () => {
-  const packages = [
+
+    const [packages, setPackages] = useState([]);
+
+    const navigate = useNavigate();
+
+
+
+  
+    useEffect(() => {
+      const fetchPackage = async () => {
+        try {
+          const res = await axios.get("https://bdtravel.net/api/get-umrah-package-data");
+          const packageData = res.data?.umrahPackageData?.data || [];
+          setPackages(packageData);
+          console.log(packages); // ✅ Corrected log
+        } catch (error) {
+          console.error("Failed to fetch Visa Data:", error);
+        }
+      };
+  
+      fetchPackage();
+    }, []);
+  
+  
+
+    const IMAGE_BASE_URL = "https://bdtravel.net/api/";
+
+      const handleClick = (id) => {
+    navigate(`/tourEnquiry/${id}`);
+  };
+
+
+  const packagess = [
     {
       id: 1,
       image:
@@ -38,24 +71,25 @@ const TourPakage = () => {
 
   return (
     <div className="bg-[#EBF0F4] py-8">
-      <div className="max-w-container px-3 sm:px-4 md:px-7 lg:mx-auto">
+      <div className="max-w-container px-3 sm:px-4 md:px-7 lg:px-8 2xl:mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {packages.map((pkg) => (
             <div
               key={pkg.id}
+              onClick={() => handleClick(pkg.id)}
               className="bg-white rounded-md shadow-lg overflow-hidden"
             >
               {/* Image Section */}
               <div className="relative h-64 group overflow-hidden">
                 <img
-                  src={pkg.image}
-                  alt={pkg.title}
+                  src={`${IMAGE_BASE_URL}${pkg.photo_1}`}
+                  // alt={pkg.alt}
                   className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
 
                 {/* Location Badge */}
-                <div className="absolute bottom-4 left-4 text-white rounded-full px-3 py-1 flex items-center gap-1">
+                {/* <div className="absolute bottom-4 left-4 text-white rounded-full px-3 py-1 flex items-center gap-1">
                                         <MapPin className="w-4 h-4 text-white" />
                   {pkg.location.map((loc, idx) => (
                     <Link
@@ -67,7 +101,7 @@ const TourPakage = () => {
                       <p className="text-white hover:text-[#ff6b35] hover:underline">{loc}</p>
                     </Link>
                   ))}
-                </div>
+                </div> */}
               </div>
 
               {/* Content Section */}
@@ -77,8 +111,8 @@ const TourPakage = () => {
                     {pkg.title}
                   </h3>
                 </Link>
-                <p className="text-gray-600 text-sm pb-6 leading-relaxed border-b border-gray-200">
-                  {pkg.subtitle}
+                <p className="text-gray-600 text-sm pb-6 leading-relaxed border-b border-gray-200" dangerouslySetInnerHTML={{ __html: pkg.post_details }}>
+                  
                 </p>
 
                 {/* Price Section */}
@@ -86,13 +120,13 @@ const TourPakage = () => {
                   <div className="flex items-center gap-2 mt-2">
                     <Clock className="w-4 h-4 text-orange-500" />
                     <span className="text-sm text-gray-600 font-medium">
-                      {pkg.duration}
+                      {pkg.package_duration}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[22px] sm:text-[26px] md:text-3xl  text-gray-800">
-                      ৳ {pkg.price}
-                    </span>
+                    <div className="text-[22px] sm:text-[26px] md:text-3xl  text-gray-800" dangerouslySetInnerHTML={{ __html: pkg.package_price }} >
+                      {/* ৳ {} */}
+                    </div>
                   </div>
                 </div>
               </div>
